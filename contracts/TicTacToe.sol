@@ -46,7 +46,7 @@ contract TicTacToe {
 
         Cell cellValue = (whosTurn == player1) ? Cell.X : Cell.O;
         board[x][y] = cellValue;
-        if (checkWinner(cellValue)) {
+        if (checkWinner()) {
             gameOver = true;
             gameState = State.Finished;
         } else {
