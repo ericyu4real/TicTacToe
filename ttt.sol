@@ -42,7 +42,7 @@ contract TicTacToe {
 
     function move(uint x, uint y) public playerOnly isNotOver {
         require(x < 3 && y < 3, "Out of bounds");
-        require(board[x][y] == Cell.Empty, "Cell is already filled");
+        require(board[x][y] == Cell.Empty, "Illegal Move!");
 
         Cell cellValue = (whosTurn == player1) ? Cell.X : Cell.O;
         board[x][y] = cellValue;
@@ -55,9 +55,30 @@ contract TicTacToe {
         }
     }
 
-    function checkWinner(Cell cellValue) private view returns (bool) {
-        // Add logic to check if a player has won the game
+    function checkWinner() private view returns (bool) {
+    Cell symbol = (whosTurn == player1) ? Cell.X : Cell.O;
+
+    // Check rows and columns
+    for (uint i = 0; i < 3; i++) {
+        if (board[i][0] == symbol && board[i][1] == symbol && board[i][2] == symbol) {
+            return true;
+        }
+        if (board[0][i] == symbol && board[1][i] == symbol && board[2][i] == symbol) {
+            return true;
+        }
     }
+
+    // Check diagonals
+    if (board[0][0] == symbol && board[1][1] == symbol && board[2][2] == symbol) {
+        return true;
+    }
+    if (board[0][2] == symbol && board[1][1] == symbol && board[2][0] == symbol) {
+        return true;
+    }
+
+    return false; // No winner found
+}
+
 
     function toggleTurn() private {
         whosTurn = (whosTurn == player1) ? player2 : player1;
