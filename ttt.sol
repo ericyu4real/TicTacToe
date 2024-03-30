@@ -13,12 +13,12 @@ contract TicTacToe {
     State private gameState;
 
     modifier playerOnly() {
-        require(msg.sender == whosTurn, "Not your turn");
+        require(msg.sender == whosTurn, "Not your turn!");
         _;
     }
 
     modifier isNotOver() {
-        require(!gameOver, "Game is already over");
+        require(!gameOver, "Game is already over!");
         _;
     }
 
@@ -41,7 +41,7 @@ contract TicTacToe {
     }
 
     function move(uint x, uint y) public playerOnly isNotOver {
-        require(x < 3 && y < 3, "Out of bounds");
+        require(x < 3 && y < 3, "Out of bounds!");
         require(board[x][y] == Cell.Empty, "Illegal Move!");
 
         Cell cellValue = (whosTurn == player1) ? Cell.X : Cell.O;
@@ -49,7 +49,6 @@ contract TicTacToe {
         if (checkWinner(cellValue)) {
             gameOver = true;
             gameState = State.Finished;
-            // Emit a game over event here
         } else {
             toggleTurn();
         }
