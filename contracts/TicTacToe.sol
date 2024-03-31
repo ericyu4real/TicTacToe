@@ -19,6 +19,10 @@ contract TicTacToe {
         emit PlayerJoined(player1);
     }
 
+    function getBoard() public view returns (uint[3][3] memory) {
+        return board;
+    }
+
     function joinGame() public {
         require(player2 == address(0), "Game already has two players.");
         player2 = msg.sender;
