@@ -1,14 +1,15 @@
 // scripts/deployTicTacToe.js
 
-const hre = require("hardhat");
-
 async function main() {
+  const [owner, player1, player2] = await hre.ethers.getSigners();
+
   const TicTacToe = await hre.ethers.getContractFactory("TicTacToe");
-  const ticTacToe = await TicTacToe.deploy();
+  // Deploy the contract and wait for the deployment transaction to be mined
+  const ticTacToe = await TicTacToe.deploy(player1.address, player2.address);
 
-  await ticTacToe.deployed();
-
+  // The contract is now deployed on the network
   console.log("TicTacToe deployed to:", ticTacToe.address);
+  
 }
 
 main()
@@ -17,3 +18,4 @@ main()
     console.error(error);
     process.exit(1);
   });
+
