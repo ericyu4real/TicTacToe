@@ -1,4 +1,5 @@
 require("@nomiclabs/hardhat-waffle");
+require('dotenv').config();
 
 module.exports = {
     solidity: "0.8.4",
@@ -10,6 +11,11 @@ module.exports = {
     },
     networks: {
         hardhat: {},
-        // 配置其他网络如需要
+        ganache: {
+            url: process.env.JSON_RPC_PROVIDER,
+            accounts: [process.env.PRIVATE_KEY_PLAYER1, process.env.PRIVATE_KEY_PLAYER2],
+            gas: 6721975, // Optional: Ganache's gas limit
+            gasPrice: 20000000000, // Optional: Ganache's gas price
+        }
     },
 };
