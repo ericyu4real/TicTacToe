@@ -37,6 +37,7 @@ async function makeMove() {
 }
 
 async function play() {
+    await ticTacToeContract.joinGame(); // Join the game
     await makeMove(); // Start game loop
 }
 

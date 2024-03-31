@@ -13,9 +13,7 @@ module.exports = {
         hardhat: {},
         ganache: {
             url: process.env.JSON_RPC_PROVIDER,
-            accounts: [process.env.PRIVATE_KEY_PLAYER1, process.env.PRIVATE_KEY_PLAYER2],
-            gas: 6721975, // Optional: Ganache's gas limit
-            gasPrice: 20000000000, // Optional: Ganache's gas price
+            accounts: [process.env.PRIVATE_KEY_PLAYER1, process.env.PRIVATE_KEY_PLAYER2]
         }
     },
 };
