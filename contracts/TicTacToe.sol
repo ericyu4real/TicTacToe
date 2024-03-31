@@ -25,6 +25,7 @@ contract TicTacToe {
 
     function joinGame() public {
         require(player2 == address(0), "Game already has two players.");
+        require(msg.sender != player1, "You cannot join the game as player2.");
         player2 = msg.sender;
         currentPlayer = player1;
         emit PlayerJoined(player2);

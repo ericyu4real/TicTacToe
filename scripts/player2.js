@@ -16,7 +16,7 @@ async function displayBoard() {
     const board = await ticTacToeContract.getBoard();
     console.log("Current board:");
     board.forEach(row => {
-        console.log(row.map(cell => cell === 0 ? '.' : cell === 1 ? 'X' : 'O').join(' '));
+        console.log(row.map(cell => cell.toString() === '1' ? '.' : cell.toString() === '2' ? 'X' : 'O').join(' '));
     });
 }
 
