@@ -34,20 +34,25 @@ async function makeMove(player) {
             console.error("Error making move:", error.message);
         }
         await displayBoard(); // Display board after move
-        if (!checkGameOver()) {
-            currentPlayer = (currentPlayer === 1) ? 2 : 1; // Switch players
-            makeMove(currentPlayer); // Prompt next move
-        } else {
-            console.log("Game over");
-            rl.close();
-        }
+        // After displaying the board again post-move
+const gameIsOver = await checkGameOver();
+if (gameIsOver) {
+    console.log("Game over");
+    rl.close();
+} else {
+    currentPlayer = (currentPlayer === 1) ? 2 : 1; // Switch players
+    makeMove(currentPlayer); // Prompt the next move
+}
+
     });
 }
 
-function checkGameOver() {
-    // Implement game over logic here (e.g., check for a winner or a draw)
-    return false; // Return true if game is over, false otherwise
+async function checkGameOver() {
+    // Query the smart contract to check if the game has ended
+    const gameIsOver = await ticTacToeContract.gameEnded();
+    return gameIsOver;
 }
+
 
 async function play() {
     await makeMove(currentPlayer); // Start game loop
