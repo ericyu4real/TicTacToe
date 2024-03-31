@@ -1,87 +1,78 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 contract TicTacToe {
+    uint[3][3] public board; // 将棋盘设为public以便测试和验证
     address public player1;
     address public player2;
-    address public whosTurn;
-    bool public gameOver;
+    address public currentPlayer;
+    bool public gameEnded;
+    bool public isDraw; // 平局状态变量
 
-    enum Cell { Empty, X, O }
-    enum State { Waiting, InProgress, Finished }
-    
-    Cell[3][3] public board;
-    State private gameState;
+    event PlayerJoined(address player);
+    event MoveMade(address player, uint x, uint y);
+    event GameWon(address winner);
+    event GameDrawn();
 
-    modifier playerOnly() {
-        require(msg.sender == whosTurn, "Not your turn!");
-        _;
+    constructor() {
+        player1 = msg.sender;
+        emit PlayerJoined(player1);
     }
 
-    modifier isNotOver() {
-        require(!gameOver, "Game is already over!");
-        _;
+    function joinGame() public {
+        require(player2 == address(0), "Game already has two players.");
+        player2 = msg.sender;
+        currentPlayer = player1;
+        emit PlayerJoined(player2);
     }
 
-    constructor(address _player1, address _player2) {
-        player1 = _player1;
-        player2 = _player2;
-        whosTurn = player1;
-        gameOver = false;
-        gameState = State.Waiting;
-        initializeBoard();
+    function makeMove(uint x, uint y) public {
+        require(!gameEnded, "Game has already ended.");
+        require(msg.sender == currentPlayer, "It's not your turn.");
+        require(board[x][y] == 0, "This cell is already taken.");
+        
+        uint playerNumber = (currentPlayer == player1) ? 1 : 2;
+        board[x][y] = playerNumber;
+        emit MoveMade(msg.sender, x, y);
+
+        if (checkWin(playerNumber)) {
+            gameEnded = true;
+            emit GameWon(currentPlayer);
+        } else if (checkDraw()) {
+            gameEnded = true;
+            isDraw = true;
+            emit GameDrawn();
+        } else {
+            currentPlayer = (currentPlayer == player1) ? player2 : player1;
+        }
     }
 
-    function initializeBoard() private {
-        for(uint i = 0; i < 3; i++) {
-            for(uint j = 0; j < 3; j++) {
-                board[i][j] = Cell.Empty;
+    function checkWin(uint player) private view returns (bool) {
+        for (uint i = 0; i < 3; i++) {
+            if (board[i][0] == player && board[i][1] == player && board[i][2] == player) {
+                return true;
+            }
+            if (board[0][i] == player && board[1][i] == player && board[2][i] == player) {
+                return true;
             }
         }
-        gameState = State.InProgress;
-    }
-
-    function move(uint x, uint y) public playerOnly isNotOver {
-        require(x < 3 && y < 3, "Out of bounds!");
-        require(board[x][y] == Cell.Empty, "Illegal Move!");
-
-        Cell cellValue = (whosTurn == player1) ? Cell.X : Cell.O;
-        board[x][y] = cellValue;
-        if (checkWinner()) {
-            gameOver = true;
-            gameState = State.Finished;
-        } else {
-            toggleTurn();
-        }
-    }
-
-    function checkWinner() private view returns (bool) {
-    Cell symbol = (whosTurn == player1) ? Cell.X : Cell.O;
-
-    // Check rows and columns
-    for (uint i = 0; i < 3; i++) {
-        if (board[i][0] == symbol && board[i][1] == symbol && board[i][2] == symbol) {
+        if (board[0][0] == player && board[1][1] == player && board[2][2] == player) {
             return true;
         }
-        if (board[0][i] == symbol && board[1][i] == symbol && board[2][i] == symbol) {
+        if (board[0][2] == player && board[1][1] == player && board[2][0] == player) {
             return true;
         }
+        return false;
     }
 
-    // Check diagonals
-    if (board[0][0] == symbol && board[1][1] == symbol && board[2][2] == symbol) {
+    function checkDraw() private view returns (bool) {
+        for (uint i = 0; i < 3; i++) {
+            for (uint j = 0; j < 3; j++) {
+                if (board[i][j] == 0) {
+                    return false;
+                }
+            }
+        }
         return true;
     }
-    if (board[0][2] == symbol && board[1][1] == symbol && board[2][0] == symbol) {
-        return true;
-    }
-
-    return false; // No winner found
-}
-
-
-    function toggleTurn() private {
-        whosTurn = (whosTurn == player1) ? player2 : player1;
-    }
-
-    // Add additional helper functions or events as needed
 }
