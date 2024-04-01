@@ -17,6 +17,18 @@ let currentPlayer = 2; // Player 1 starts the game
 // monitor PlayerJoined event
 const currentPlayerAddress = wallet.address;
 
+function parse_err(errmsg) {
+    const errorPattern = /revert ([^"]+)/;
+    const match = errmsg.match(errorPattern);
+
+    if (match) {
+        console.warn("Revert:", match[1].slice(0, -1));
+        // console.log("Extracted Error Message:", match[1]);
+    } else {
+        console.warn(errmsg);
+    }
+}
+
 // monitor PlayerJoined event
 ticTacToeContract.on("PlayerJoined", (player) => {
     if (player.toLowerCase() !== currentPlayerAddress.toLowerCase()) {
@@ -67,7 +79,8 @@ async function makeMove(player) {
             await tx.wait();
             console.log(`Move made at (${x}, ${y}) by Player ${player}`);
         } catch (error) {
-            console.error("Error making move:", error.message);
+            // console.error("Error making move:", error.message);
+            parse_err(error.message);
         }
         await displayBoard(); // Display board after move
 
@@ -77,7 +90,7 @@ async function makeMove(player) {
             console.log("Game over");
             // rl.close();
         } else {
-            console.log("Player 1's turn")
+            // console.log("Player 1's turn")
             makeMove(currentPlayer); // Prompt the next move
         }
 
