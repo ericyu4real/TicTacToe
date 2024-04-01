@@ -55,7 +55,7 @@ async function displayBoard() {
     const board = await ticTacToeContract.getBoard();
     console.log("Current board:");
     board.forEach(row => {
-        console.log(row.map(cell => cell.toString() === '1' ? '.' : cell.toString() === '2' ? 'X' : 'O').join(' '));
+        console.log(row.map(cell => cell.toString() === '1' ? 'X' : cell.toString() === '2' ? 'O' : '.').join(' '));
     });
 }
 
@@ -73,7 +73,7 @@ async function makeMove(player) {
 
         const gameIsOver = await checkGameOver();
         if (gameIsOver) {
-            await ticTacToeContract.leaveGame(); // Leave the game
+            // await ticTacToeContract.leaveGame(); // Leave the game
             console.log("Game over");
             rl.close();
         } else {
@@ -100,7 +100,7 @@ play().catch(console.error);
 
 rl.on("close", function () {
     console.log("\nGame ended");
-    ticTacToeContract.resetGame(); // 离开游戏
+    ticTacToeContract.jumpLeave();
     process.exit(0);
 });
 

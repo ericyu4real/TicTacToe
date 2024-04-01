@@ -44,12 +44,10 @@ contract TicTacToe {
         if (checkWin(playerNumber)) {
             gameEnded = true;
             emit GameWon(currentPlayer);
-            resetGame();
         } else if (checkDraw()) {
             gameEnded = true;
             isDraw = true;
             emit GameDrawn();
-            resetGame();
         } else {
             currentPlayer = (currentPlayer == player1) ? player2 : player1;
         }
@@ -104,6 +102,18 @@ contract TicTacToe {
 
         emit GameReset();
 
+    }
+
+    function jumpLeave() public{
+        require(msg.sender == player1 || msg.sender == player2, "You are not a participant of the game.");
+        if(msg.sender == player1){
+            player1 = address(0);
+        }else{
+            player2 = address(0);
+        }
+        gameEnded = true;
+
+        // emit GameWon(currentPlayer);
     }
 
     
