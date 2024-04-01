@@ -14,17 +14,17 @@ const ticTacToeContract = new ethers.Contract(contractAddress, contractABI, wall
 
 let currentPlayer = 2; // Player 1 starts the game
 
-// 保存当前玩家的地址
+// monitor PlayerJoined event
 const currentPlayerAddress = wallet.address;
 
-// 监听PlayerJoined事件
+// monitor PlayerJoined event
 ticTacToeContract.on("PlayerJoined", (player) => {
     if (player.toLowerCase() !== currentPlayerAddress.toLowerCase()) {
         console.log(`\nPlayer joined: ${player}`);
     }
 });
 
-// 监听MoveMade事件
+// monitor MoveMade event
 ticTacToeContract.on("MoveMade", async (player, x, y) => {
     if (player.toLowerCase() !== currentPlayerAddress.toLowerCase()) {
         console.log(`\nMove made by opponent at (${x},${y})`);
@@ -38,13 +38,13 @@ ticTacToeContract.on("GameReset", () => {
     process.exit(); 
 });
 
-// 监听GameWon事件
+// monitor GameWon event
 ticTacToeContract.on("GameWon", (winner) => {
     console.log(`\nGame Over. Winner: ${winner}`);
     process.exit(); 
 });
 
-// 监听GameDrawn事件
+// monitor GameDrawn event
 ticTacToeContract.on("GameDrawn", () => {
     console.log(`\nGame Over. It's a draw.`);
     process.exit(); 
@@ -102,9 +102,8 @@ rl.on("close", async function () {
     console.log("\nGame ended");
 
     try {
-        // 假设leaveGame是实际的函数名
         const tx = await ticTacToeContract.jumpLeave();
-        await tx.wait(); // 等待交易被挖掘
+        await tx.wait(); // wait for the transaction to be mined
         console.log("Successfully left the game.");
     } catch (error) {
         console.error("Failed to leave the game:", error);

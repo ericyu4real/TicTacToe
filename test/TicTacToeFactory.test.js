@@ -18,6 +18,5 @@ describe("TicTacToeFactory", function () {
         await ticTacToeFactory.createGame();
         const games = await ticTacToeFactory.getGames();
         expect(games.length).to.equal(1);
-        // 也可以添加更多检查，比如验证事件或检查新游戏的具体属性
     });
 });
