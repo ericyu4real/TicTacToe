@@ -26,27 +26,27 @@ ticTacToeContract.on("PlayerJoined", (player) => {
 ticTacToeContract.on("MoveMade", async (player, x, y) => {
     if (player.toLowerCase() !== currentPlayerAddress.toLowerCase()) {
         console.log(`\nMove made by opponent at (${x},${y})`);
-        await displayBoard(); // 重新显示棋盘
+        await displayBoard(); 
         console.log(`\nPlayer ${currentPlayer}, enter your move (row,col): `);
     }
 });
 
 ticTacToeContract.on("GameReset", () => {
-    console.log("Your Opponent Left. The game has been reset. Please start a new game.");
-    ticTacToeContract.leaveGame(); // 离开游戏
-    process.exit(); // 退出程序
+    console.log("The game has been reset. Please start a new game.");
+    ticTacToeContract.leaveGame(); 
+    process.exit(); 
 });
 
 // 监听GameWon事件
 ticTacToeContract.on("GameWon", (winner) => {
     console.log(`\nGame Over. Winner: ${winner}`);
-    process.exit(); // 退出程序
+    process.exit(); 
 });
 
 // 监听GameDrawn事件
 ticTacToeContract.on("GameDrawn", () => {
     console.log(`\nGame Over. It's a draw.`);
-    process.exit(); // 退出程序
+    process.exit(); 
 });
 
 

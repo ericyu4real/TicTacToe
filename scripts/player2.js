@@ -35,19 +35,19 @@ ticTacToeContract.on("MoveMade", async (player, x, y) => {
 
 ticTacToeContract.on("GameReset", () => {
     console.log("Your Opponent Left. The game has been reset. Please start a new game.");
-    process.exit(); // 退出程序
+    process.exit(); 
 });
 
 // 监听GameWon事件
 ticTacToeContract.on("GameWon", (winner) => {
     console.log(`\nGame Over. Winner: ${winner}`);
-    process.exit(); // 退出程序
+    process.exit(); 
 });
 
 // 监听GameDrawn事件
 ticTacToeContract.on("GameDrawn", () => {
     console.log(`\nGame Over. It's a draw.`);
-    process.exit(); // 退出程序
+    process.exit(); 
 });
 
 
@@ -77,7 +77,7 @@ async function makeMove(player) {
             console.log("Game over");
             rl.close();
         } else {
-            currentPlayer = (currentPlayer === 1) ? 2 : 1; // Switch players
+            console.log("Player 1's turn")
             makeMove(currentPlayer); // Prompt the next move
         }
 
