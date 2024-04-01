@@ -84,7 +84,7 @@ contract TicTacToe {
 
     function resetGame() public {
         // 确保只有参与游戏的玩家可以调用此函数
-        require(msg.sender == player1 || msg.sender == player2, "You are not a participant of the game.");
+        // require(msg.sender == player1 || msg.sender == player2, "You are not a participant of the game.");
 
         // 清空棋盘
         for (uint i = 0; i < 3; i++) {
@@ -100,12 +100,12 @@ contract TicTacToe {
         gameEnded = false;
         isDraw = false;
 
-        emit GameReset();
+        // emit GameReset();
 
     }
 
     function jumpLeave() public{
-        require(msg.sender == player1 || msg.sender == player2, "You are not a participant of the game.");
+        // require(msg.sender == player1 || msg.sender == player2, "You are not a participant of the game.");
         if(msg.sender == player1){
             player1 = address(0);
         }else{
@@ -113,7 +113,10 @@ contract TicTacToe {
         }
         gameEnded = true;
 
-        // emit GameWon(currentPlayer);
+        emit GameWon(currentPlayer);
+
+        resetGame();
+    
     }
 
     

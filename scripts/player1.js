@@ -100,9 +100,18 @@ async function play() {
 play().catch(console.error);
 
 
-rl.on("close", function () {
+rl.on("close", async function () {
     console.log("\nGame ended");
-    ticTacToeContract.jumpLeave();
+
+    try {
+        // 假设leaveGame是实际的函数名
+        const tx = await ticTacToeContract.jumpLeave();
+        await tx.wait(); // 等待交易被挖掘
+        console.log("Successfully left the game.");
+    } catch (error) {
+        console.error("Failed to leave the game:", error);
+    }
+
     process.exit(0);
 });
 
