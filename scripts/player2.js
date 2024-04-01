@@ -12,15 +12,22 @@ const provider = new ethers.providers.JsonRpcProvider(process.env.JSON_RPC_PROVI
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY_PLAYER2, provider);
 const ticTacToeContract = new ethers.Contract(contractAddress, contractABI, wallet);
 
+// 保存当前玩家的地址
+const currentPlayerAddress = wallet.address;
+
 // 监听PlayerJoined事件
 ticTacToeContract.on("PlayerJoined", (player) => {
-    console.log(`\nPlayer joined: ${player}`);
+    if (player.toLowerCase() !== currentPlayerAddress.toLowerCase()) {
+        console.log(`\nPlayer joined: ${player}`);
+    }
 });
 
 // 监听MoveMade事件
 ticTacToeContract.on("MoveMade", async (player, x, y) => {
-    console.log(`\nMove made by player: ${player} at (${x},${y})`);
-    await displayBoard(); // 重新显示棋盘
+    if (player.toLowerCase() !== currentPlayerAddress.toLowerCase()) {
+        console.log(`\nMove made by opponent: ${player} at (${x},${y})`);
+        await displayBoard(); // 重新显示棋盘
+    }
 });
 
 
@@ -62,7 +69,7 @@ async function makeMove() {
                 console.error("Error making move:", error.message);
             }
         }
-        await displayBoard(); // Display board after move
+
         makeMove(); // Prompt next move
     });
 }

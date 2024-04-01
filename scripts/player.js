@@ -1,49 +1,52 @@
 const { ethers } = require("ethers");
 require("dotenv").config();
 const readline = require("readline");
+
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
+
 const contractABI = require("../artifacts/contracts/TicTacToe.sol/TicTacToe.json").abi;
 const contractAddress = process.env.CONTRACT_ADDRESS;
 
-const provider = new ethers.providers.JsonRpcProvider(process.env.JSON_RPC_PROVIDER);
-const wallet = new ethers.Wallet(process.env.PRIVATE_KEY_PLAYER1, provider);
-const ticTacToeContract = new ethers.Contract(contractAddress, contractABI, wallet);
+async function initializePlayer() {
+    return new Promise((resolve) => {
+        rl.question("Enter your player private key: ", (privateKey) => {
+            const provider = new ethers.providers.JsonRpcProvider(process.env.JSON_RPC_PROVIDER);
+            const wallet = new ethers.Wallet(privateKey, provider);
+            resolve(wallet);
+        });
+    });
+}
 
-// 保存当前玩家的地址
-const currentPlayerAddress = wallet.address;
+let currentPlayerAddress;
+let ticTacToeContract;
 
-// 监听PlayerJoined事件
-ticTacToeContract.on("PlayerJoined", (player) => {
-    if (player.toLowerCase() !== currentPlayerAddress.toLowerCase()) {
+async function setupContract(wallet) {
+    ticTacToeContract = new ethers.Contract(contractAddress, contractABI, wallet);
+    currentPlayerAddress = wallet.address;
+
+    // Setup event listeners
+    ticTacToeContract.on("PlayerJoined", (player) => {
         console.log(`\nPlayer joined: ${player}`);
-    }
-});
+    });
 
-// 监听MoveMade事件
-ticTacToeContract.on("MoveMade", async (player, x, y) => {
-    if (player.toLowerCase() !== currentPlayerAddress.toLowerCase()) {
-        console.log(`\nMove made by opponent: ${player} at (${x},${y})`);
+    ticTacToeContract.on("MoveMade", async (player, x, y) => {
+        console.log(`\nMove made by player: ${player} at (${x},${y})`);
         await displayBoard(); // 重新显示棋盘
-    }
-});
+    });
 
-// 监听GameWon事件
-ticTacToeContract.on("GameWon", (winner) => {
-    console.log(`\nGame Over. Winner: ${winner}`);
-    process.exit(); // 退出程序
-});
+    ticTacToeContract.on("GameWon", (winner) => {
+        console.log(`\nGame Over. Winner: ${winner}`);
+        rl.close();
+    });
 
-// 监听GameDrawn事件
-ticTacToeContract.on("GameDrawn", () => {
-    console.log(`\nGame Over. It's a draw.`);
-    process.exit(); // 退出程序
-});
-
-
-let currentPlayer = 1; // Player 1 starts the game
+    ticTacToeContract.on("GameDrawn", () => {
+        console.log(`\nGame Over. It's a draw.`);
+        rl.close();
+    });
+}
 
 async function displayBoard() {
     const board = await ticTacToeContract.getBoard();
@@ -66,16 +69,15 @@ async function makeMove(player) {
         await displayBoard(); // Display board after move
         // After displaying the board again post-move
 
-    const gameIsOver = await checkGameOver();
-    if (gameIsOver) {
-        console.log("Game over");
-        rl.close();
-    } else {
-        currentPlayer = (currentPlayer === 1) ? 2 : 1; // Switch players
-        makeMove(currentPlayer); // Prompt the next move
-    }
+        const gameIsOver = await checkGameOver();
+        if (gameIsOver) {
+            console.log("Game over");
+            rl.close();
+        } else {
+            makeMove(player); // Prompt the next move
+        }
 
-        });
+    });
 }
 
 async function checkGameOver() {
@@ -84,10 +86,11 @@ async function checkGameOver() {
     return gameIsOver;
 }
 
-
 async function play() {
+    const wallet = await initializePlayer();
+    await setupContract(wallet);
     await displayBoard();
-    await makeMove(currentPlayer); // Start game loop
+    makeMove();
 }
 
 play().catch(console.error);
