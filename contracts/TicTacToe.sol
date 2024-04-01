@@ -105,7 +105,7 @@ contract TicTacToe {
         isDraw = false;
 
         // Notify the game has been reset
-        emit GameReset(); // Uncommented to use
+        // emit GameReset(); // Uncommented to use
     }
 
     // Allow a player to leave the game, triggering a game reset
