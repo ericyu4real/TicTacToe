@@ -25,9 +25,16 @@ ticTacToeContract.on("PlayerJoined", (player) => {
 // 监听MoveMade事件
 ticTacToeContract.on("MoveMade", async (player, x, y) => {
     if (player.toLowerCase() !== currentPlayerAddress.toLowerCase()) {
-        console.log(`\nMove made by opponent: ${player} at (${x},${y})`);
+        console.log(`\nMove made by opponent at (${x},${y})`);
         await displayBoard(); // 重新显示棋盘
+        console.log(`\nPlayer ${currentPlayer}, enter your move (row,col): `);
     }
+});
+
+ticTacToeContract.on("GameReset", () => {
+    console.log("Your Opponent Left. The game has been reset. Please start a new game.");
+    ticTacToeContract.leaveGame(); // 离开游戏
+    process.exit(); // 退出程序
 });
 
 // 监听GameWon事件
@@ -41,6 +48,7 @@ ticTacToeContract.on("GameDrawn", () => {
     console.log(`\nGame Over. It's a draw.`);
     process.exit(); // 退出程序
 });
+
 
 
 let currentPlayer = 1; // Player 1 starts the game
@@ -64,18 +72,18 @@ async function makeMove(player) {
             console.error("Error making move:", error.message);
         }
         await displayBoard(); // Display board after move
-        // After displaying the board again post-move
 
     const gameIsOver = await checkGameOver();
     if (gameIsOver) {
+        await ticTacToeContract.leaveGame(); // Leave the game
         console.log("Game over");
         rl.close();
     } else {
-        currentPlayer = (currentPlayer === 1) ? 2 : 1; // Switch players
+        console.log("Player 2's turn")
         makeMove(currentPlayer); // Prompt the next move
     }
 
-        });
+    });
 }
 
 async function checkGameOver() {
@@ -92,7 +100,13 @@ async function play() {
 
 play().catch(console.error);
 
+
 rl.on("close", function () {
     console.log("\nGame ended");
+    ticTacToeContract.resetGame(); // 离开游戏
     process.exit(0);
+});
+
+process.on('SIGINT', () => {
+    rl.close();
 });

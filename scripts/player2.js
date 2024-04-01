@@ -12,6 +12,8 @@ const provider = new ethers.providers.JsonRpcProvider(process.env.JSON_RPC_PROVI
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY_PLAYER2, provider);
 const ticTacToeContract = new ethers.Contract(contractAddress, contractABI, wallet);
 
+let currentPlayer = 2; // Player 1 starts the game
+
 // 保存当前玩家的地址
 const currentPlayerAddress = wallet.address;
 
@@ -25,9 +27,27 @@ ticTacToeContract.on("PlayerJoined", (player) => {
 // 监听MoveMade事件
 ticTacToeContract.on("MoveMade", async (player, x, y) => {
     if (player.toLowerCase() !== currentPlayerAddress.toLowerCase()) {
-        console.log(`\nMove made by opponent: ${player} at (${x},${y})`);
+        console.log(`\nMove made by opponent at (${x},${y})`);
         await displayBoard(); // 重新显示棋盘
+        console.log(`\nPlayer ${currentPlayer}, enter your move (row,col): `);
     }
+});
+
+ticTacToeContract.on("GameReset", () => {
+    console.log("Your Opponent Left. The game has been reset. Please start a new game.");
+    process.exit(); // 退出程序
+});
+
+// 监听GameWon事件
+ticTacToeContract.on("GameWon", (winner) => {
+    console.log(`\nGame Over. Winner: ${winner}`);
+    process.exit(); // 退出程序
+});
+
+// 监听GameDrawn事件
+ticTacToeContract.on("GameDrawn", () => {
+    console.log(`\nGame Over. It's a draw.`);
+    process.exit(); // 退出程序
 });
 
 
@@ -39,49 +59,51 @@ async function displayBoard() {
     });
 }
 
-async function makeMove() {
-    await displayBoard();
-    rl.question("Enter your move (row,col): ", async function (move) {
+async function makeMove(player) {
+    rl.question(`Player ${player}, enter your move (row,col): `, async function (move) {
         const [x, y] = move.split(",").map(n => parseInt(n.trim(), 10));
         try {
             const tx = await ticTacToeContract.makeMove(x, y);
             await tx.wait();
-            console.log(`Move made at (${x}, ${y}) by Player 2`);
+            console.log(`Move made at (${x}, ${y}) by Player ${player}`);
         } catch (error) {
-            // 找到JSON字符串的开始位置
-            const jsonStartIndex = error.message.indexOf('{');
-            // 如果找到了有效的JSON开始位置
-            if (jsonStartIndex > -1) {
-                // 截取从JSON开始位置到字符串末尾的部分
-                const jsonString = error.message.substring(jsonStartIndex);
-                try {
-                    // 尝试解析JSON字符串
-                    const errorObj = JSON.parse(jsonString);
-                    // 尝试从解析后的对象中提取错误信息
-                    const revertMessage = errorObj.error?.data?.stack || errorObj.error?.message || "Unknown error";
-                    console.error("Error making move:", revertMessage);
-                } catch (parseError) {
-                    // 如果解析JSON失败，则打印原始错误信息
-                    console.error("Error making move:", error.message);
-                }
-            } else {
-                // 如果没有找到有效的JSON开始位置，则打印原始错误信息
-                console.error("Error making move:", error.message);
-            }
+            console.error("Error making move:", error.message);
+        }
+        await displayBoard(); // Display board after move
+
+        const gameIsOver = await checkGameOver();
+        if (gameIsOver) {
+            await ticTacToeContract.leaveGame(); // Leave the game
+            console.log("Game over");
+            rl.close();
+        } else {
+            currentPlayer = (currentPlayer === 1) ? 2 : 1; // Switch players
+            makeMove(currentPlayer); // Prompt the next move
         }
 
-        makeMove(); // Prompt next move
     });
+}
+
+async function checkGameOver() {
+    // Query the smart contract to check if the game has ended
+    const gameIsOver = await ticTacToeContract.gameEnded();
+    return gameIsOver;
 }
 
 async function play() {
     await ticTacToeContract.joinGame(); // Join the game
-    await makeMove(); // Start game loop
+    await displayBoard(); // Display the board
+    await makeMove(currentPlayer); // Start game loop
 }
 
 play().catch(console.error);
 
 rl.on("close", function () {
     console.log("\nGame ended");
+    ticTacToeContract.resetGame(); // 离开游戏
     process.exit(0);
+});
+
+process.on('SIGINT', () => {
+    rl.close();
 });

@@ -13,6 +13,7 @@ contract TicTacToe {
     event MoveMade(address player, uint x, uint y);
     event GameWon(address winner);
     event GameDrawn();
+    event GameReset();
 
     constructor() {
         player1 = msg.sender;
@@ -43,10 +44,12 @@ contract TicTacToe {
         if (checkWin(playerNumber)) {
             gameEnded = true;
             emit GameWon(currentPlayer);
+            resetGame();
         } else if (checkDraw()) {
             gameEnded = true;
             isDraw = true;
             emit GameDrawn();
+            resetGame();
         } else {
             currentPlayer = (currentPlayer == player1) ? player2 : player1;
         }
@@ -80,4 +83,29 @@ contract TicTacToe {
         }
         return true;
     }
+
+    function resetGame() public {
+        // 确保只有参与游戏的玩家可以调用此函数
+        require(msg.sender == player1 || msg.sender == player2, "You are not a participant of the game.");
+
+        // 清空棋盘
+        for (uint i = 0; i < 3; i++) {
+            for (uint j = 0; j < 3; j++) {
+                board[i][j] = 0;
+            }
+        }
+
+        // 重置玩家地址和游戏状态
+        player1 = address(0);
+        player2 = address(0);
+        currentPlayer = address(0);
+        gameEnded = false;
+        isDraw = false;
+
+        emit GameReset();
+
+    }
+
+    
+
 }
