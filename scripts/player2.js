@@ -28,13 +28,13 @@ ticTacToeContract.on("PlayerJoined", (player) => {
 ticTacToeContract.on("MoveMade", async (player, x, y) => {
     if (player.toLowerCase() !== currentPlayerAddress.toLowerCase()) {
         console.log(`\nMove made by opponent at (${x},${y})`);
-        await displayBoard(); // 重新显示棋盘
+        await displayBoard(); // re-display the board
         console.log(`\nPlayer ${currentPlayer}, enter your move (row,col): `);
     }
 });
 
 ticTacToeContract.on("GameReset", () => {
-    console.log("Your Opponent Left. The game has been reset. Please start a new game.");
+    console.log("The game has been reset. Please start a new game.");
     process.exit(); 
 });
 
