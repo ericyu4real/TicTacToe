@@ -75,7 +75,7 @@ async function makeMove(player) {
         if (gameIsOver) {
             // await ticTacToeContract.leaveGame(); // Leave the game
             console.log("Game over");
-            rl.close();
+            // rl.close();
         } else {
             console.log("Player 1's turn")
             makeMove(currentPlayer); // Prompt the next move

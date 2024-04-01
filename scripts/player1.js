@@ -76,7 +76,7 @@ async function makeMove(player) {
     if (gameIsOver) {
         // await ticTacToeContract.leaveGame(); // Leave the game
         console.log("Game over");
-        rl.close();
+        // rl.close();
     } else {
         console.log("Player 2's turn")
         makeMove(currentPlayer); // Prompt the next move
@@ -102,7 +102,6 @@ play().catch(console.error);
 
 rl.on("close", async function () {
     console.log("\nGame ended");
-
     try {
         const tx = await ticTacToeContract.jumpLeave();
         await tx.wait(); // wait for the transaction to be mined
