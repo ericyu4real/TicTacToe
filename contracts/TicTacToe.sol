@@ -6,8 +6,8 @@ contract TicTacToe {
     address public player1;
     address public player2;
     address public currentPlayer;
-    bool public gameEnded;
-    bool public isDraw; // 平局状态变量
+    bool public gameEnded = false;
+    bool public isDraw = false; // 平局状态变量
 
     event PlayerJoined(address player);
     event MoveMade(address player, uint x, uint y);

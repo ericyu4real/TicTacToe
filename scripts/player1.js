@@ -23,7 +23,6 @@ async function displayBoard() {
 }
 
 async function makeMove(player) {
-    await displayBoard();
     rl.question(`Player ${player}, enter your move (row,col): `, async function (move) {
         const [x, y] = move.split(",").map(n => parseInt(n.trim(), 10));
         try {
